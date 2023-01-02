@@ -28,7 +28,8 @@ function timezone(){
 
 function main(){
 
-    date=$(date +%D | tr '/' '-')
+    date=$(date +%F)
+    day_of_year=$(date +%j)
     filename="${date}.md"
     timezone=$(timezone kolkata)
     journal_dir="journals"
@@ -41,12 +42,13 @@ function main(){
         echo -e "-> Creating journal ${date}.md\n"
         touch ${journal_dir}/${filename}
         if [[ $? == 0 ]]; then
-            echo -e "# ${date} · ${timezone}\n" > ${filename}
-            echo -e "->  Start your journal...\n"
+            echo -e "# ${date} · ${timezone}" > ${journal_dir}/${filename}
+            echo -e "# Day of year: ${day_of_year}\n" >> ${journal_dir}/${filename}
+            echo -e "->  Start your journal now...\n"
         fi
     else
         echo -e "-> Journal ${date}.md already exists.\n"
-        echo -e "-> Start your journal...\n"
+        echo -e "-> Write your today's journal...\n"
     fi
 }
 
