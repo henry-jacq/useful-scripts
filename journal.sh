@@ -20,8 +20,16 @@ function timezone(){
     do
         time=$(TZ=$z date +%X)
         day=$(TZ=$z date +%A)
-        echo "${day} · ${time}\n"
+        echo "${day} · ${time}"
     done
+}
+
+function edit_journal(){
+    read -p "-> Want to edit the journal '${filename}'? [Y/n] " ans
+    if [[ $ans == 'y' || $ans == 'Y' || $ans == '' ]]; then
+        echo -e "\n-> Opening journal ${filename} in vim...\n" && sleep 1
+        vim ${journal_dir}/${filename}
+    fi
 }
 
 function main(){
@@ -40,6 +48,7 @@ function main(){
         echo -e "[!] Can't create new journal.\n"
         echo -e "[!] Journal ${date}.md already exists.\n"
         echo -e "-> Write your today's journal...\n"
+        edit_journal
         exit 1
     else
         echo -e "-> Creating journal ${date}.md\n"
@@ -48,8 +57,9 @@ function main(){
             echo -e "# ${date} · ${timezone}" > ${journal_dir}/${filename}
             echo -e "# Day of year: ${day_of_year}\n" >> ${journal_dir}/${filename}
             echo -e "-> Start your journal now...\n"
+            edit_journal
         else
-            echo -e "-> Can't create journal '${filename}'"
+            echo -e "-> Can't create journal '${filename}'\n"
         fi
     fi
 }
