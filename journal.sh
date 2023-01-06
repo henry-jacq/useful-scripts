@@ -4,6 +4,10 @@
 # Description: A script to write your journals
 # Created date: 01/01/2023
 
+# Global variables
+editor="vim"
+journal_dir="logs"
+
 function timezone(){
     search=$1
 
@@ -27,8 +31,8 @@ function timezone(){
 function edit_journal(){
     read -p "-> Want to edit the journal '${filename}'? [Y/n] " ans
     if [[ $ans == 'y' || $ans == 'Y' || $ans == '' ]]; then
-        echo -e "\n-> Opening journal ${filename} in vim...\n" && sleep 1
-        vim ${journal_dir}/${filename}
+        echo -e "\n-> Opening journal ${filename} in ${editor}...\n" && sleep 1
+        ${editor} ${journal_dir}/${filename}
     fi
 }
 
@@ -38,10 +42,16 @@ function main(){
     day_of_year=$(date +%j)
     filename="${date}.md"
     timezone=$(timezone kolkata)
-    journal_dir="logs"
 
+    # Create journal logs directory if not created
     if [[ ! -d ${journal_dir} ]]; then
         mkdir ${journal_dir}
+    fi
+
+    # Edit today's journal
+    if [[ $1 == "edit-now" ]]; then
+        ${editor} ${journal_dir}/${filename}
+        exit
     fi
 
     if [[ -f "${journal_dir}/${filename}" ]]; then
@@ -62,6 +72,7 @@ function main(){
             echo -e "-> Can't create journal '${filename}'\n"
         fi
     fi
+
 }
 
 main "$@"
