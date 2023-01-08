@@ -8,23 +8,24 @@
 editor="vim"
 journal_dir="logs"
 
+function no_of_logs(){
+    no_of_logs=$(ls ${journal_dir} | wc -l)
+    echo -e "\n[*] No. of journals have written: ${no_of_logs}\n"
+}
+
 function timezone(){
     search=$1
 
-    zoneinfo=/usr/share/zoneinfo/posix/
-    tzlist=$(find -L $zoneinfo -type f -printf "%P\n")
+    zoneinfo=/usr/share/zoneinfo/posix/                               tzlist=$(find -L $zoneinfo -type f -printf "%P\n")
 
     if [[ $search == "" ]]; then
         echo -e "Usage: $0 <Time-zone>"
         exit 1
     fi
-
-    grep -i "$search" <<< "$tzlist" \
-    | while read z
-    do
+                                                                      grep -i "$search" <<< "$tzlist" \
+    | while read z                                                    do
         time=$(TZ=$z date +%X)
-        day=$(TZ=$z date +%A)
-        echo "${day} · ${time}"
+        day=$(TZ=$z date +%A)                                             echo "${day} · ${time}"
     done
 }
 
@@ -53,6 +54,8 @@ function main(){
         ${editor} ${journal_dir}/${filename}
         exit
     fi
+
+    no_of_logs
 
     if [[ -f "${journal_dir}/${filename}" ]]; then
         echo -e "[!] Can't create new journal.\n"
