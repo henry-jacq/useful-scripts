@@ -47,13 +47,10 @@ function _blue_text(){
 	echo -e "\e[34m${QUERY}\e[0m"
 }
 
-# It is the main function, calls other functions
 function main(){
-	# verify_root
-	# _green_text ${0}: Setting up ${PROGRAM}...
-	# install_dependencies
-	# do_stuff
-	# exit 0
+	verify_root
+	_green_text ${0}: Setting up ${PROGRAM}...
+	install_dependencies
 	setup
 }
 
