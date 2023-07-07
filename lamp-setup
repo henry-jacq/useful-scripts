@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# Author: Henry
+# Created: 07/07/23
+
+# Enable apache modules
+function enable_apache_modules() {
+    echo -e "\n==> Modifying apache modules"
+    sleep 1
+    echo -e "\n[*] Enabling apache headers module..."
+    sudo a2enmod headers
+    echo -e "\n[*] Enabling apache rewrite module..."
+    sudo a2enmod rewrite
+}
+
+# Enable apache modules
+function enable_services() {
+    echo -e "\n==> Enabling services..."
+    sleep 1
+    echo -e "\n[*] Enabling mysql service..."
+    sudo systemctl enable mysql --now
+    echo -e "\n[*] Enabling apache service..."
+    sudo systemctl enable apache2 --now
+}
+
+# Tweaking and enabling PHP extensions
+function modify_php_config() {
+    cli_config="/etc/php/8.1/cli/php.ini"
+    apache_config="/etc/php/8.1/apache2/php.ini"
+    php_extensions=(
+        "curl"
+        "gd"
+        "intl"
+        "mysqli"
+        "openssl"
+        "pdo_mysql"
+        "pdo_pgsql"
+        "pdo_sqlite"
+        "pgsql"
+        "sockets"
+        "sqlite3"
+    )
+
+    echo -e "\n==> Customizing PHP Configuration\n"
+    sleep 1
+
+    for ext in ${php_extensions[@]} ; do
+        echo -e "[*] Enabling extension $ext..."
+        sudo sed -i "s/;\(extension=${ext}\)/\1/" "$apache_config"
+        sudo sed -i "s/;\(extension=${ext}\)/\1/" "$cli_config"
+    done
+
+    echo -e "\n[*] Enabling display_errors to ON..."
+    sudo sed -i 's/display_errors = Off/display_errors = On/' $cli_config
+    sudo sed -i 's/display_errors = Off/display_errors = On/' $apache_config
+    sleep 1
+    echo -e "[*] Enabling PHP short open tag for CLI..."
+    sudo sed -i 's/short_open_tag = Off/short_open_tag = On/' $cli_config
+    sleep 1
+    echo -e "[*] Enabling PHP short open tag for apache..."
+    sudo sed -i 's/short_open_tag = Off/short_open_tag = On/' $apache_config
+    sleep 1
+}
+
+# Setting up database
+function setup_database() {
+    echo -e "\n==> Setting up mysql database..."
+    sudo mysql_secure_installation
+}
+
+# Main function
+function main() {
+    echo "==> Setting up lamp-server"
+    sleep 3
+
+    echo -e "\n==> Updating packages..."
+    sudo apt-get update
+
+    # Dependencies for lamp server
+    dependencies=(
+        'php'
+        'php-gd'
+        'apache2'
+        'composer'
+        'mysql-server'
+        'mysql-client'
+        'libapache2-mod-php'
+    )
+
+    # Install dependencies
+    for i in ${dependencies[@]} ; do
+        echo -e "\n-> Installing $i..."
+        sudo apt install $i
+    done
+    
+    if [[ $? == 0 ]]; then
+        echo -e "\n[+] Dependencies for lamp-server installed!"
+        enable_apache_modules
+        modify_php_config
+        echo -e "\n[!] Restarting apache web server..."
+        sudo systemctl restart apache2
+        setup_database
+        enable_services
+        sleep 1
+        echo -e "\n==> LAMP setup finished successfully!"
+        sleep 2
+        echo -e "\n==> Happy coding!\n"
+    fi
+}
+
+main "$@"
