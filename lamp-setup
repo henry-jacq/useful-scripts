@@ -47,7 +47,6 @@ function modify_php_config() {
     for ext in ${php_extensions[@]} ; do
         echo -e "[*] Enabling extension $ext..."
         sudo sed -i "s/;\(extension=${ext}\)/\1/" "$apache_config"
-        sudo sed -i "s/;\(extension=${ext}\)/\1/" "$cli_config"
     done
 
     echo -e "\n[*] Enabling display_errors to ON..."
